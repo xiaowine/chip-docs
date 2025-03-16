@@ -1,0 +1,32 @@
+GL3224(E) QFN48 eMMC Demo Board  Revised: Tuesday, December 02, 2014
+          Revision: 3.00
+
+
+
+
+
+
+
+Bill Of Materials       December 2,2014      12:01:40	Page1
+
+Item	Quantity	Reference	Part	PCB footprint
+______________________________________________
+
+1	7	C1,C2,C9,C12,C13,C24,C33	0.1uF	CCS-0402
+2	7	C3,C6,C16,C22,C23,C27,	2.2uF	CCS-0402
+		C30
+3	6	C10,C14,C15,C18,C25,C26	1uF	CCS-0402
+4	1	J_USB1	USB3A-Male	CNS-U3A09M-20_25x12x0_8A
+5	1	J_USB2	Type-C  Male	CNS-U3C24M-13_16X10X0_5A
+6	1	LED1	Green	LED-0603
+7	2	R5,R17	47R	RS-0402
+8	1	R12	470R	RS-0402
+9	1	R13	680R 1%	RS-0402
+10	2	R14,R18	51K	RS-0402
+11	1	R15	0.5R	RS-0805
+12	1	R19	NC/0R	RS-0402
+13	1	R36	NC/10K	RS-0402
+14	1	R37	5.1K	RS-0402
+15	2	U1,U4	eMMC-8bit	
+16	1	U2	GL3224-QFN48	I-QFN48-7X7X0_5B
+17	1	U3	GD25Q512	i-tssop8-3x4_4x0_65b
