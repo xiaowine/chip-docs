@@ -157,9 +157,9 @@ def generate_manifest() -> None:
         # 获取路径
         script_dir = os.path.dirname(os.path.abspath(__file__))
         chip_docs_path = os.path.normpath(os.path.join(script_dir, "..", ))
-        output_path = os.path.normpath(os.path.join(script_dir, "..", "data", "file-manifest.json"))
-        md5s_dir = os.path.normpath(os.path.join(script_dir, "..", "data", "md5s"))
-        changes_path = os.path.normpath(os.path.join(script_dir, "..", "data", "changes.json"))  # 移动到这里
+        output_path = os.path.normpath(os.path.join(script_dir, "..", ".data", "file-manifest.json"))
+        md5s_dir = os.path.normpath(os.path.join(script_dir, "..", ".data", "md5s"))
+        changes_path = os.path.normpath(os.path.join(script_dir, "..", ".data", "changes.json"))  # 移动到这里
 
         # 确保输出目录存在
         for dir_path in [os.path.dirname(output_path), md5s_dir]:
