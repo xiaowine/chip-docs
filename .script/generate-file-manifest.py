@@ -18,12 +18,12 @@ def get_all_files(dir_path: str) -> List[Dict[str, Any]]:
         包含文件信息的列表
     """
     array_of_files = []
-    
+
     for item in os.listdir(dir_path):
         # 忽略.git文件夹
         if item == '.git':
             continue
-            
+
         full_path = os.path.join(dir_path, item)
         stat = os.stat(full_path)
 
@@ -87,7 +87,7 @@ def process_file_info(file_path: str, base_path: str) -> Dict[str, Any]:
     stat = os.stat(file_path)
     file_md5 = calculate_file_md5(file_path)
     relative_path = os.path.relpath(file_path, base_path)
-    
+
     return {
         "path": relative_path,
         "size": stat.st_size,
@@ -96,11 +96,12 @@ def process_file_info(file_path: str, base_path: str) -> Dict[str, Any]:
         "md5": file_md5
     }
 
+
 def process_directory_info(dir_path: str, base_path: str) -> Dict[str, Any]:
     """处理目录信息"""
     stat = os.stat(dir_path)
     relative_path = os.path.relpath(dir_path, base_path)
-    
+
     return {
         "path": relative_path,
         "size": 0,
@@ -109,6 +110,7 @@ def process_directory_info(dir_path: str, base_path: str) -> Dict[str, Any]:
         "md5": calculate_dir_md5(relative_path)
     }
 
+
 def collect_file_changes(new_files: Dict[str, str], previous_files: Dict[str, str]) -> Dict[str, List]:
     """收集文件变更信息"""
     changes = {
@@ -116,7 +118,7 @@ def collect_file_changes(new_files: Dict[str, str], previous_files: Dict[str, st
         "removed": [],
         "modified": []
     }
-    
+
     # 检查新增和修改的文件
     for filename, new_md5 in new_files.items():
         old_md5 = next((md5 for md5, name in previous_files.items() if name == filename), None)
@@ -128,7 +130,7 @@ def collect_file_changes(new_files: Dict[str, str], previous_files: Dict[str, st
                 "old_md5": old_md5,
                 "new_md5": new_md5
             })
-    
+
     # 检查删除的文件
     old_filenames = set(previous_files.values())
     new_filenames = set(new_files.keys())
@@ -138,8 +140,9 @@ def collect_file_changes(new_files: Dict[str, str], previous_files: Dict[str, st
             "filename": filename,
             "last_md5": old_md5
         })
-    
+
     return changes
+
 
 def clean_unused_md5_files(md5s_dir: str, current_md5s: set) -> None:
     """清理不再使用的MD5文件"""
@@ -152,6 +155,7 @@ def clean_unused_md5_files(md5s_dir: str, current_md5s: set) -> None:
                 except OSError as e:
                     print(f"Warning: Failed to remove unused MD5 file {file_name}: {e}")
 
+
 def generate_manifest() -> None:
     try:
         # 获取路径
@@ -159,7 +163,7 @@ def generate_manifest() -> None:
         chip_docs_path = os.path.normpath(os.path.join(script_dir, "..", ))
         output_path = os.path.normpath(os.path.join(script_dir, "..", ".data", "file-manifest.json"))
         md5s_dir = os.path.normpath(os.path.join(script_dir, "..", ".data", "md5s"))
-        changes_path = os.path.normpath(os.path.join(script_dir, "..", ".data", "changes.json"))  # 移动到这里
+        changes_path = os.path.normpath(os.path.join(script_dir, "..", ".data", "changes.json"))
 
         # 确保输出目录存在
         for dir_path in [os.path.dirname(output_path), md5s_dir]:
@@ -174,30 +178,50 @@ def generate_manifest() -> None:
         files_info = {}
         manifest_dict = {}
         current_md5s = set()  # 跟踪当前所有的MD5值
-        
+
         for item in os.listdir(chip_docs_path):
-            if item == '.git':
+            # 忽略以点开头的文件和目录
+            if item.startswith('.'):
                 continue
-                
+
             full_path = os.path.join(chip_docs_path, item)
-            
+
             if os.path.isdir(full_path):
                 dir_info = process_directory_info(full_path, chip_docs_path)
                 files_info[dir_info["path"]] = dir_info
-                
+
                 # 处理子目录
-                for root, _, filenames in os.walk(full_path):
+                for root, dirs, filenames in os.walk(full_path):
+                    # 忽略以点开头的目录
+                    dirs[:] = [d for d in dirs if not d.startswith('.')]
+
                     for filename in filenames:
+                        # 忽略以点开头的文件
+                        if filename.startswith('.'):
+                            continue
+
                         file_path = os.path.join(root, filename)
                         file_info = process_file_info(file_path, chip_docs_path)
                         files_info[file_info["path"]] = file_info
-                        manifest_dict[file_info["md5"]] = os.path.basename(file_path)
-                        current_md5s.add(file_info["md5"])  # 添加到当前MD5集合
+
+                        # 获取相对路径作为文件名
+                        rel_path = os.path.relpath(file_path, chip_docs_path)
+                        manifest_dict[file_info["md5"]] = rel_path
+
+                        current_md5s.add(file_info["md5"])
             else:
+                # 忽略以点开头的文件
+                if item.startswith('.'):
+                    continue
+
                 file_info = process_file_info(full_path, chip_docs_path)
                 files_info[file_info["path"]] = file_info
-                manifest_dict[file_info["md5"]] = os.path.basename(full_path)
-                current_md5s.add(file_info["md5"])  # 添加到当前MD5集合
+
+                # 获取相对路径作为文件名
+                rel_path = os.path.relpath(full_path, chip_docs_path)
+                manifest_dict[file_info["md5"]] = rel_path
+
+                current_md5s.add(file_info["md5"])
 
         # 清理不再使用的MD5文件
         clean_unused_md5_files(md5s_dir, current_md5s)
@@ -212,14 +236,15 @@ def generate_manifest() -> None:
         # 处理变更
         previous_manifest = load_previous_manifest(output_path)
         previous_files = previous_manifest.get("files", {})
-        
+
+        # 构建变更比较用的文件映射（使用相对路径）
+        current_files = {os.path.basename(path): info["md5"]
+                         for path, info in files_info.items()
+                         if not info["isDirectory"]}
+
         current_changes = {
             "timestamp": datetime.datetime.now().isoformat(),
-            "changes": collect_file_changes(
-                {os.path.basename(path): info["md5"] 
-                 for path, info in files_info.items() if not info["isDirectory"]},
-                previous_files
-            )
+            "changes": collect_file_changes(current_files, previous_files)
         }
 
         # 保存变更记录
@@ -244,7 +269,6 @@ def generate_manifest() -> None:
     except Exception as error:
         print(f"Error generating file manifest: {error}")
         raise
-
 
 if __name__ == "__main__":
     try:
