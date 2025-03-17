@@ -22,5 +22,5 @@
 ## 📬 联系方式
 
 - 📧 邮箱：xiao_wine@qq.com
-- 🔗 仓库链接：[cchip-docs](https://github.com/xiaowine/chip-docs)
+- 🔗 仓库链接：[chip-docs](https://github.com/xiaowine/chip-docs)
 - 🌐 项目前端：[chip-docs-web](https://github.com/xiaowine/chip-docs-web)
