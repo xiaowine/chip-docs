@@ -1,0 +1,54 @@
+  Revised: Friday, June 16, 2017
+          Revision: 1.00
+
+
+
+
+
+
+
+Bill Of Materials           June 16,2017      17:31:04	Page1
+
+Item	Quantity	Reference	Part
+______________________________________________
+
+1	4	C14,C15,C17,C18	4.7u
+2	3	C2,C33,C34	1u
+3	9	C3,C5,C6,C7,C9,C10,C21,	0.1u
+		C27,C28
+4	7	C4,C12,C22,C23,C24,C25,	2.2u
+		C26
+7	2	C13,C20	12p
+9	2	FB1,FB2	1Kohm@100MHz
+11	1	LED1	TBD
+12	1	L1	FB
+13	2	R1,R2	10K
+16	1	R5	470R
+18	1	R7	1M
+19	2	R36,R37	51K
+21	1	USB1	USB3 Micro B
+22	1	U1	GL3227E-QFN48
+23	1	U2	GD25Q512
+25	2	U4,U5	eMMC-169-FPGA Socket
+26	1	X1	25MHz
+
+______________________________________________
+NC
+8	8	R9,R11,C19,C29,C30,C31,	NC
+		C32,R39
+DC-DC 5to1.8V
+1	1	C1	4.7u
+5	1	C8	10u
+6	1	C11	47p
+10	1	LB1	10uH
+14	1	R3	20K 1%
+15	1	R4	10K 1%
+24	1	U3	UP1722-DFN6
+0R
+17	28	R6,R8,R10,R12,R13,R14,	0R
+		R15,R16,R17,R18,R19,R20,
+		R21,R22,R23,R24,R25,R26,
+		R27,R28,R29,R30,R31,R32,
+		R33,R34,R35,R38
+GPIO Selection
+20	2	R40,R41	0R/NC
