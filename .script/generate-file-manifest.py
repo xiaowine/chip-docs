@@ -111,7 +111,7 @@ def process_directory_info(dir_path: str, base_path: str) -> Dict[str, Any]:
     }
 
 
-def collect_file_changes(new_files: Dict[str, str], previous_files: Dict[str, str]) -> Dict[str, List]:
+def collect_file_changes(new_files: Dict[str, Dict], previous_files: Dict[str, str]) -> Dict[str, List]:
     """收集文件变更信息"""
     changes = {
         "added": [],
@@ -119,27 +119,34 @@ def collect_file_changes(new_files: Dict[str, str], previous_files: Dict[str, st
         "modified": []
     }
 
+    # 创建反向映射表：路径->MD5
+    prev_path_to_md5 = {}
+    for md5, path in previous_files.items():
+        prev_path_to_md5[path] = md5
+
     # 检查新增和修改的文件
-    for filename, new_md5 in new_files.items():
-        old_md5 = next((md5 for md5, name in previous_files.items() if name == filename), None)
-        if old_md5 is None:
-            changes["added"].append({"filename": filename, "md5": new_md5})
-        elif old_md5 != new_md5:
-            changes["modified"].append({
-                "filename": filename,
-                "old_md5": old_md5,
-                "new_md5": new_md5
-            })
+    for path, info in new_files.items():
+        if path in prev_path_to_md5:
+            # 文件已存在，检查MD5是否变化
+            old_md5 = prev_path_to_md5[path]
+            new_md5 = info["md5"]
+            if old_md5 != new_md5:
+                changes["modified"].append({
+                    "filename": path,
+                    "old_md5": old_md5,
+                    "new_md5": new_md5
+                })
+        else:
+            # 新增文件
+            changes["added"].append({"filename": path, "md5": info["md5"]})
 
     # 检查删除的文件
-    old_filenames = set(previous_files.values())
-    new_filenames = set(new_files.keys())
-    for filename in old_filenames - new_filenames:
-        old_md5 = next(md5 for md5, name in previous_files.items() if name == filename)
-        changes["removed"].append({
-            "filename": filename,
-            "last_md5": old_md5
-        })
+    for path, md5 in prev_path_to_md5.items():
+        if path not in new_files:
+            changes["removed"].append({
+                "filename": path,
+                "last_md5": md5
+            })
 
     return changes
 
@@ -204,8 +211,8 @@ def generate_manifest() -> None:
                         file_info = process_file_info(file_path, chip_docs_path)
                         files_info[file_info["path"]] = file_info
 
-                        # 获取相对路径作为文件名
-                        rel_path = os.path.relpath(file_path, chip_docs_path)
+                        # 使用相对路径作为键值对映射
+                        rel_path = file_info["path"]
                         manifest_dict[file_info["md5"]] = rel_path
 
                         current_md5s.add(file_info["md5"])
@@ -217,8 +224,8 @@ def generate_manifest() -> None:
                 file_info = process_file_info(full_path, chip_docs_path)
                 files_info[file_info["path"]] = file_info
 
-                # 获取相对路径作为文件名
-                rel_path = os.path.relpath(full_path, chip_docs_path)
+                # 使用相对路径作为键值对映射
+                rel_path = file_info["path"]
                 manifest_dict[file_info["md5"]] = rel_path
 
                 current_md5s.add(file_info["md5"])
@@ -237,14 +244,12 @@ def generate_manifest() -> None:
         previous_manifest = load_previous_manifest(output_path)
         previous_files = previous_manifest.get("files", {})
 
-        # 构建变更比较用的文件映射（使用相对路径）
-        current_files = {os.path.basename(path): info["md5"]
-                         for path, info in files_info.items()
-                         if not info["isDirectory"]}
-
+        # 只包含非目录文件的信息
+        file_infos_no_dir = {path: info for path, info in files_info.items() if not info["isDirectory"]}
+        
         current_changes = {
             "timestamp": datetime.datetime.now().isoformat(),
-            "changes": collect_file_changes(current_files, previous_files)
+            "changes": collect_file_changes(file_infos_no_dir, previous_files)
         }
 
         # 保存变更记录
