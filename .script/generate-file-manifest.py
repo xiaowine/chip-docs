@@ -3,9 +3,12 @@ import json
 import datetime
 import hashlib
 import uuid  # 添加uuid模块导入
+import pytz  # 添加pytz模块用于时区支持
 from pathlib import Path
 from typing import List, Dict, Any, Union
 
+# 定义北京时区
+BEIJING_TZ = pytz.timezone('Asia/Shanghai')
 
 def get_all_files(dir_path: str) -> List[Dict[str, Any]]:
     """
@@ -34,7 +37,7 @@ def get_all_files(dir_path: str) -> List[Dict[str, Any]]:
             array_of_files.append({
                 "path": full_path,
                 "size": 0,
-                "modifiedTime": datetime.datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                "modifiedTime": datetime.datetime.fromtimestamp(stat.st_mtime, BEIJING_TZ).isoformat(),
                 "isDirectory": True
             })
         else:
@@ -42,7 +45,7 @@ def get_all_files(dir_path: str) -> List[Dict[str, Any]]:
             array_of_files.append({
                 "path": full_path,
                 "size": stat.st_size,
-                "modifiedTime": datetime.datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                "modifiedTime": datetime.datetime.fromtimestamp(stat.st_mtime, BEIJING_TZ).isoformat(),
                 "isDirectory": False
             })
 
@@ -91,7 +94,7 @@ def process_file_info(file_path: str, base_path: str) -> Dict[str, Any]:
     return {
         "path": relative_path,
         "size": stat.st_size,
-        "modifiedTime": datetime.datetime.fromtimestamp(stat.st_mtime).isoformat(),
+        "modifiedTime": datetime.datetime.fromtimestamp(stat.st_mtime, BEIJING_TZ).isoformat(),
         "isDirectory": False,
         "md5": file_md5
     }
@@ -105,7 +108,7 @@ def process_directory_info(dir_path: str, base_path: str) -> Dict[str, Any]:
     return {
         "path": relative_path,
         "size": 0,
-        "modifiedTime": datetime.datetime.fromtimestamp(stat.st_mtime).isoformat(),
+        "modifiedTime": datetime.datetime.fromtimestamp(stat.st_mtime, BEIJING_TZ).isoformat(),
         "isDirectory": True,
         "md5": calculate_dir_md5(relative_path)
     }
@@ -248,7 +251,7 @@ def generate_manifest() -> None:
         file_infos_no_dir = {path: info for path, info in files_info.items() if not info["isDirectory"]}
         
         current_changes = {
-            "timestamp": datetime.datetime.now().isoformat(),
+            "timestamp": datetime.datetime.now(BEIJING_TZ).isoformat(),
             "changes": collect_file_changes(file_infos_no_dir, previous_files)
         }
 
@@ -261,7 +264,7 @@ def generate_manifest() -> None:
 
         # 保存新的manifest
         manifest = {
-            "timestamp": datetime.datetime.now().isoformat(),
+            "timestamp": datetime.datetime.now(BEIJING_TZ).isoformat(),
             "files": manifest_dict
         }
         with open(output_path, "w", encoding="utf-8") as f:
