@@ -39,17 +39,20 @@ jobs:
         run: |
           # Create .data directory if it doesn't exist
           mkdir -p .data/md5s
-          
+
           # Clone gh-pages branch to a temporary directory
           git clone --branch gh-pages --depth 1 https://${{ github.token }}@github.com/${{ github.repository }}.git gh-pages-temp
-      
+
           if [ -d gh-pages-temp/.data/ ]; then
             cp -r gh-pages-temp/.data/* .data/
             echo "Previous files found and copied."
           fi
-          
+
           # Clean up temporary directory
           rm -rf gh-pages-temp
+
+          # 设置文件时间戳保持原样，避免由于时间戳变化导致的MD5变化
+          find .data -type f -exec touch -a -m -r .github/workflows/deploy.yml {} \;
 
       - name: Generate file manifest
         run: python .script/generate-file-manifest.py
