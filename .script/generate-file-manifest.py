@@ -85,7 +85,7 @@ def load_changes(changes_path: str) -> List[Dict[str, Any]]:
     return []
 
 
-def process_file_info(file_path: str, base_path: str) -> Dict[str, Any]]:
+def process_file_info(file_path: str, base_path: str) -> Dict[str, Any]:
     """处理单个文件信息"""
     stat = os.stat(file_path)
     file_md5 = calculate_file_md5(file_path)
