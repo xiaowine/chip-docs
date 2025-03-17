@@ -238,7 +238,7 @@ def generate_manifest() -> None:
             if not file_info["isDirectory"]:
                 detail_path = os.path.join(md5s_dir, f"{file_info['md5']}.json")
                 with open(detail_path, "w", encoding="utf-8") as f:
-                    json.dump(file_info, f, indent=2, ensure_ascii=False)
+                    json.dump(file_info, f, ensure_ascii=False)
 
         # 处理变更
         previous_manifest = load_previous_manifest(output_path)
@@ -257,7 +257,7 @@ def generate_manifest() -> None:
             changes_history = load_changes(changes_path)
             changes_history.append(current_changes)
             with open(changes_path, "w", encoding="utf-8") as f:
-                json.dump(changes_history, f, indent=2, ensure_ascii=False)
+                json.dump(changes_history, f, ensure_ascii=False)
 
         # 保存新的manifest
         manifest = {
@@ -265,7 +265,7 @@ def generate_manifest() -> None:
             "files": manifest_dict
         }
         with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(manifest, f, indent=2, ensure_ascii=False)
+            json.dump(manifest, f, ensure_ascii=False)
 
         print(f"File manifest generated at: {output_path}")
         print(f"MD5 details generated in: {md5s_dir}")
