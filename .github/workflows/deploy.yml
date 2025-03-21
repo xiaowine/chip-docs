@@ -60,6 +60,9 @@ jobs:
       - name: Generate file manifest
         run: python .script/generate-file-manifest.py
 
+      - name: Make Site Map
+        run: python .script/make_sitemap.py
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
